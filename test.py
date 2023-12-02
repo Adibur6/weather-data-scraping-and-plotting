@@ -3,10 +3,11 @@ import pandas as pd
 from datetime import datetime
 
 class DBOperations:
-    def fetch_data(self):
+    def fetch_data(self, year):
         try:
             with DBCM() as cursor:
-                cursor.execute('SELECT * FROM temperature')
+                # Fetch data for every date of the specified year
+                cursor.execute('SELECT * FROM temperature WHERE strftime("%Y", sample_date) = ?', (str(year),))
                 all_data = cursor.fetchall()
         except sqlite3.Error as e:
             print(f"SQLite error: {e}")
@@ -64,6 +65,3 @@ db_operations = DBOperations()
 # Initialize the database
 db_operations.initialize_db()
 
-# Purge data from the table
-db_operations.save_data("2018-02-33",12,12,12)
-print(db_operations.fetch_data())

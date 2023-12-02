@@ -3,7 +3,7 @@ import pandas as pd
 from datetime import datetime
 
 class DBOperations:
-    def fetch_data(self):
+     def fetch_data(self):
         try:
             with DBCM() as cursor:
                 cursor.execute('SELECT * FROM temperature')
@@ -15,7 +15,7 @@ class DBOperations:
         column_names = ['id', 'sample_date', 'min_temp', 'max_temp', 'avg_temp']
         df = pd.DataFrame(all_data, columns=column_names)
         return df
-
+        
     def is_valid_date(self, date_string):
         try:
             datetime.strptime(date_string, '%Y-%m-%d')

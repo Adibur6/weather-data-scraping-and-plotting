@@ -1,26 +1,33 @@
 import matplotlib.pyplot as plt
-from db_operations import DBOperations
 import pandas as pd
-fetch=DBOperations()
-class PlotOperations:
-    def Ploting(self):
-        fetched_data=fetch.fetch_data()
-        plt.figure(figsize=(10, 6))
-        plt.boxplot(fetched_data,x_label=fetched_data["sample_date"],y=fetched_data["max_temp"])
-        plt.title('Box Plot of Max Temperature by Date')
-        plt.xlabel('Max Temperature')
-        plt.ylabel('Date')
-        plt.show()
-plot=PlotOperations()
-plot.Ploting()
-        
+import numpy as np
 
-    
-    
-    
-    
-    
-    
-    
-    
-    
+class PlotOperations:
+    def __init__(self, weather_data):
+        self.weather_data = weather_data
+
+    def create_boxplot(self, start_year, end_year):
+        selected_data = self.weather_data.loc[start_year:end_year]
+
+        selected_data.boxplot(column=list(range(1, 13)))
+        plt.title(f'Monthly Temperatures Distribution {start_year} to {end_year}')
+        plt.xlabel('Month')
+        plt.ylabel('Temperature (Celcius)')
+        plt.show()
+
+    def create_lineplot(self, selected_year, selected_month):
+        # Extract the list for the specified year and month
+        selected_data = self.weather_data.loc[selected_year, selected_month]
+        days_in_month = range(1, len(selected_data) + 1)
+        print(days_in_month)
+
+        # Create a line plot
+        plt.plot(days_in_month, selected_data, marker='x')
+        plt.title(f'Daily Average Temperatures {selected_month}/{selected_year}')
+        plt.xlabel('Day of Month')
+        plt.ylabel('Average Daily Temp.')
+
+        plt.xticks(days_in_month)
+
+        plt.grid(True, linestyle = '--')  # Add grid
+        plt.show()
