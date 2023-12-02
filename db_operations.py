@@ -1,9 +1,10 @@
 from dbcm import DBCM
 import pandas as pd
 from datetime import datetime
+import sqlite3
 
 class DBOperations:
-     def fetch_data(self):
+    def fetch_data(self):
         try:
             with DBCM() as cursor:
                 cursor.execute('SELECT * FROM temperature')
@@ -15,7 +16,7 @@ class DBOperations:
         column_names = ['id', 'sample_date', 'min_temp', 'max_temp', 'avg_temp']
         df = pd.DataFrame(all_data, columns=column_names)
         return df
-        
+
     def is_valid_date(self, date_string):
         try:
             datetime.strptime(date_string, '%Y-%m-%d')
@@ -25,8 +26,8 @@ class DBOperations:
 
     def save_data(self, sample_date, min_temp, max_temp, avg_temp):
         if not self.is_valid_date(sample_date):
-            print(f"Invalid date format for {sample_date}. Data not saved.")
-            return
+            # print(f"Invalid date format for {sample_date}. Data not saved.")
+            return False
 
         try:
             with DBCM() as cursor:
@@ -35,10 +36,12 @@ class DBOperations:
                 existing_data = cursor.fetchone()
 
                 if existing_data:
-                    print(f"Data for {sample_date} already exists. Not saving duplicate entry.")
+                    # print(f"Data for {sample_date} already exists. Not saving duplicate entry.")
+                    return False
                 else:
                     cursor.execute('INSERT INTO temperature VALUES(NULL,?,?,?,?)', (sample_date, min_temp, max_temp, avg_temp))
-                    print(f"Data for {sample_date} saved successfully.")
+                    # print(f"Data for {sample_date} saved successfully.")
+                    return True
         except sqlite3.Error as e:
             print(f"SQLite error: {e}")
 
@@ -58,12 +61,3 @@ class DBOperations:
         except sqlite3.Error as e:
             print(f"SQLite error: {e}")
 
-# Create an instance of DBOperations
-db_operations = DBOperations()
-
-# Initialize the database
-db_operations.initialize_db()
-
-# Purge data from the table
-db_operations.save_data("2018-02-33",12,12,12)
-print(db_operations.fetch_data())

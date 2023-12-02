@@ -1,0 +1,5 @@
+for download_update_weather_data() function go from current (month,year) to previous month using a while with True condition.
+for every month and year edit the url=f"asdjaksjd{month}aslkdj{year}" variable. and pass it to WS.scrape_weather_data(url) which return and
+dictionary of the following type """{'2018-05-30': {'Max': 0.0, 'Min': 0.0, 'Mean': 0.0}, '2018-05-31': {'Max': 0.0, 'Min': 15.2, 'Mean': 0.0}}"""
+iterate over this dictionary and insert them into the database using self.db_operations.save_date(date,max,min,avg). this function will 
+return a boolean variable named notDone. if is false then break the while loop.

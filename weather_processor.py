@@ -1,26 +1,51 @@
+import datetime
 from db_operations import DBOperations
-from weather_procesor import WeatherScraper
+from weather_scraper import WeatherScraper
+from plot_operations import PlotOperations
 
 class WeatherProcessor:
     def __init__(self):
         self.db_operations = DBOperations()
-        sel.
+        self.db_operations.initialize_db()
 
     def display_menu(self):
         print("Weather Processor Menu:")
-        print("1. Download Full Set of Weather Data or ")
-        print("2. Update Weather Data")
-        print("3. Generate Box Plot for a Year Range")
-        print("4. Generate Line Plot for a Month and Year")
-        print("5. Exit")
+        print("1. Download/Update Weather Data")
+        print("2. Generate Box Plot for a Year Range")
+        print("3. Generate Line Plot for a Month and Year")
+        print("4. Exit")
 
-    def download_full_set(self):
-        # Implement downloading the full set of weather data
-        pass
+    def download_update_weather_data(self):
+        today = datetime.date.today()
+        current_month, current_year = today.month, today.year
 
-    def update_weather_data(self):
-        # Implement updating weather data without duplicating
-        pass
+        WS = WeatherScraper()
+        while True:
+            # Construct the URL based on the current month and year
+            url = f"https://climate.weather.gc.ca/climate_data/daily_data_e.html?StationID=27174&timeframe=2&StartYear=1840&EndYear=2023&Day=1&Year={current_year}&Month={current_month}"
+
+            # Scraping weather data using the URL
+            weather_data = WS.scrape_weather_data(url)
+
+            # Insert data into the database
+            not_done = True
+            for date, data in weather_data.items():
+                max_temp = data['Max']
+                min_temp = data['Min']
+                avg_temp = data['Mean']
+
+                # Insert into the database
+                not_done = not_done and self.db_operations.save_data(date, max_temp, min_temp, avg_temp)
+
+            if not not_done:
+                print("Done data insertion. Stopping the process.")
+                return
+
+            # Move to the previous month and year
+            current_month -= 1
+            if current_month == 0:
+                current_month = 12
+                current_year -= 1
 
     def generate_box_plot(self, from_year, to_year):
         # Implement generating a box plot for the specified year range
@@ -33,25 +58,23 @@ class WeatherProcessor:
     def run(self):
         while True:
             self.display_menu()
-            choice = input("Enter your choice (1-5): ")
+            choice = input("Enter your choice (1-4): ")
 
             if choice == "1":
-                self.download_full_set()
+                self.download_update_weather_data()
             elif choice == "2":
-                self.update_weather_data()
-            elif choice == "3":
                 from_year = int(input("Enter the starting year: "))
                 to_year = int(input("Enter the ending year: "))
                 self.generate_box_plot(from_year, to_year)
-            elif choice == "4":
+            elif choice == "3":
                 year = int(input("Enter the year: "))
                 month = int(input("Enter the month: "))
                 self.generate_line_plot(year, month)
-            elif choice == "5":
+            elif choice == "4":
                 print("Exiting the Weather Processor. Goodbye!")
                 break
             else:
-                print("Invalid choice. Please enter a number from 1 to 5.")
+                print("Invalid choice. Please enter a number from 1 to 4.")
 
 if __name__ == "__main__":
     weather_processor = WeatherProcessor()

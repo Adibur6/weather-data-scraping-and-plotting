@@ -9,7 +9,7 @@ class WeatherScraper():
         soup=BeautifulSoup(html_page.content,'html.parser')
         header_info=soup.find_all("table",class_="table table-striped table-hover align-cells-right data-table")[0]
         title=header_info.find("caption",class_="hidden-print").get_text()
-        print(title)
+        print("Importing "+title)
         table_info=header_info.find_all("tbody")[0].find_all("tr")
         daily_temparature={}
         for i in range(0,31):
@@ -38,11 +38,5 @@ class WeatherScraper():
         daily_temparature = {date: {key: float(value) if value.replace('.', '', 1).isdigit() else 0 for key, value in data.items()} for date, data in daily_temparature.items()}
 
         return daily_temparature
-# data scrape by date    
-url="https://climate.weather.gc.ca/climate_data/daily_data_e.html?StationID=27174&timeframe=2&StartYear=1840&EndYear=2018&Day=1&Year=2018&Month=5"
-scraper = WeatherScraper()
-weather_data = scraper.scrape_weather_data(url)
 
-print(weather_data)
- 
     
