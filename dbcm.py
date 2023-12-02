@@ -1,4 +1,5 @@
 import sqlite3
+import atexit
 
 class DBCM:
     def __init__(self):
@@ -11,7 +12,12 @@ class DBCM:
         self.db_file = "Temperature.db"
         self.connection = None
         self.cursor = None
+        atexit.register(self.close_db)
 
+    def close_db(self):
+        if self.connection:
+            self.connection.close()
+            print("Database connection closed.")
     def __enter__(self):
         """
         Establish a SQLite database connection and return a cursor.
