@@ -1,4 +1,3 @@
-from db_operations import  DBOperations
 import requests
 from datetime import datetime
 from bs4 import BeautifulSoup
@@ -12,36 +11,38 @@ class WeatherScraper():
         title=header_info.find("caption",class_="hidden-print").get_text()
         print(title)
         table_info=header_info.find_all("tbody")[0].find_all("tr")
-        daily_temparature=[]
-        for i in range(0,30):
+        daily_temparature={}
+        for i in range(0,31):
             if table_info:
                 temparature_info=table_info[i].find_all("td")
                 if temparature_info or date_info:   
+                    date_info=header_info.find_all("tbody")[0].find_all("tr")[i].find("th")
+                    date=date_info.find("abbr")
+                    if date==None:
+                        break
                     MAX_temp=temparature_info[0].get_text()
                     min_temp=temparature_info[1].get_text()
                     mean_temp=temparature_info[2].get_text()
-                    date_info=header_info.find_all("tbody")[0].find_all("tr")[i].find("th")
-                    date=date_info.find("abbr")["title"]
-                    temparature={"Date":date,"Max":MAX_temp,"Min":min_temp,"Mean":mean_temp}
-                    daily_temparature.append(temparature)
+                    date=date["title"]
+                    date = datetime.strptime(date, "%B %d, %Y").strftime("%Y-%m-%d")
+
+                   
+                    temparature={"Max":MAX_temp,"Min":min_temp,"Mean":mean_temp}
+                    daily_temparature[date]=temparature
                 else:
                     continue
             
             else:
                 print("Do not have the temparature data")
+        daily_temparature = {date: {key: ''.join('0' if c.isalpha() else c for c in value) for key, value in data.items()} for date, data in daily_temparature.items()}
+        daily_temparature = {date: {key: float(value) if value.replace('.', '', 1).isdigit() else 0 for key, value in data.items()} for date, data in daily_temparature.items()}
+
         return daily_temparature
 # data scrape by date    
-url="https://climate.weather.gc.ca/climate_data/daily_data_e.html?StationID=27174&timeframe=2&StartYear=2020&EndYear=2016&Day=1&Year=2018&Month=7"
+url="https://climate.weather.gc.ca/climate_data/daily_data_e.html?StationID=27174&timeframe=2&StartYear=1840&EndYear=2018&Day=1&Year=2018&Month=5"
 scraper = WeatherScraper()
-db=DBOperations()
 weather_data = scraper.scrape_weather_data(url)
-date_format = "%B %d, %Y"
-for data in weather_data:
-    print(data)
-    max=float(data["Max"])
-    min=float(data["Min"])
-    avg_data=float((max+min)/2)
-    date=data["Date"]
-    datetime= datetime.strptime(date,date_format)
-    db.save_data(datetime,min,max,avg_data)
+
+print(weather_data)
+ 
     
