@@ -30,15 +30,8 @@ class WeatherProcessor:
             weather_data = WS.scrape_weather_data(url)
 
             # Insert data into the database
-            not_done = True
-            for date, data in weather_data.items():
-                max_temp = data['Max']
-                min_temp = data['Min']
-                avg_temp = data['Mean']
-
-                # Insert into the database
-                not_done = not_done and self.db_operations.save_data(date, max_temp, min_temp, avg_temp)
-
+            not_done = self.db_operations.save_data(weather_data)
+            
             if not not_done:
                 print("Done data insertion. Stopping the process.")
                 return
@@ -79,7 +72,7 @@ class WeatherProcessor:
                 print("Exiting the Weather Processor. Goodbye!")
                 break
             else:
-                print("Invalid choice. Please enter a number from 1 to 4.")
+                print("Invalid choice. Please enter a number from 1 to 5.")
 
 if __name__ == "__main__":
     weather_processor = WeatherProcessor()
