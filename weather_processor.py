@@ -2,6 +2,7 @@ import datetime
 from db_operations import DBOperations
 from weather_scraper import WeatherScraper
 from plot_operations import PlotOperations
+import pandas as pd
 
 class WeatherProcessor:
     def __init__(self):
@@ -13,7 +14,8 @@ class WeatherProcessor:
         print("1. Download/Update Weather Data")
         print("2. Generate Box Plot for a Year Range")
         print("3. Generate Line Plot for a Month and Year")
-        print("4. Exit")
+        print("4. Delete the database.")
+        print("5. Exit")
 
     def download_update_weather_data(self):
         today = datetime.date.today()
@@ -48,7 +50,8 @@ class WeatherProcessor:
                 current_year -= 1
 
     def generate_box_plot(self, from_year, to_year):
-        # Implement generating a box plot for the specified year range
+        df=self.db_operations.fetch_data()
+        print(df)
         pass
 
     def generate_line_plot(self, year, month):
@@ -70,7 +73,9 @@ class WeatherProcessor:
                 year = int(input("Enter the year: "))
                 month = int(input("Enter the month: "))
                 self.generate_line_plot(year, month)
-            elif choice == "4":
+            elif choice=='4':
+                self.db_operations.purge_data()
+            elif choice == "5":
                 print("Exiting the Weather Processor. Goodbye!")
                 break
             else:
