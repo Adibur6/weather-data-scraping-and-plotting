@@ -7,11 +7,14 @@ class WeatherScraper():
     def scrape_weather_data(self,url):
         html_page=requests.get(url,headers=headers)
         soup=BeautifulSoup(html_page.content,'html.parser')
-        header_info=soup.find_all("table",class_="table table-striped table-hover align-cells-right data-table")[0]
+        daily_temparature={}
+        header_info=soup.find_all("table",class_="table table-striped table-hover align-cells-right data-table")
+        if header_info is None:
+            return daily_temparature
+        header_info=header_info[0]
         title=header_info.find("caption",class_="hidden-print").get_text()
         print("Importing "+title)
         table_info=header_info.find_all("tbody")[0].find_all("tr")
-        daily_temparature={}
         for i in range(0,31):
             if table_info:
                 temparature_info=table_info[i].find_all("td")

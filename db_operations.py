@@ -26,7 +26,7 @@ class DBOperations:
 
     def save_data(self, data_dict):
         # Iterate through the dictionary items
-        original=True
+        original=True and len(data_dict)>0
         try:
             with DBCM() as cursor:
                 for sample_date, temp_data in data_dict.items():
