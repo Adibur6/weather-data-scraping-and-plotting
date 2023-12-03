@@ -2,6 +2,7 @@ import datetime
 from db_operations import DBOperations
 from weather_scraper import WeatherScraper
 from plot_operations import PlotOperations
+
 import pandas as pd
 
 class WeatherProcessor:
@@ -49,14 +50,45 @@ class WeatherProcessor:
                 current_month = 12
                 current_year -= 1
 
+
     def generate_box_plot(self, from_year, to_year):
+        per = PlotOperations()
         df=self.db_operations.fetch_data()
-        print(df)
-        pass
+
+        df['sample_date'] = pd.to_datetime(df['sample_date'])
+
+        dt = pd.DataFrame()
+        dt['year'] = df['sample_date'].dt.year
+        dt['month'] = df['sample_date'].dt.month
+        dt['val'] = df['avg_temp']
+
+        bdf = pd.DataFrame(columns=['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'])
+        for i in range(to_year, from_year-1, -1):
+            for j in range(1,13):
+                filtered_values = dt.loc[(dt['year'] == i) & (dt['month'] == j), 'val'].tolist()
+                if len(filtered_values)>0:
+                    mean_val = round(sum(filtered_values) / len(filtered_values), 1)
+                else:
+                    mean_val=0
+                bdf.at[i, j]=mean_val
+
+        per.create_boxplot(bdf, from_year, to_year)
+
+        
 
     def generate_line_plot(self, year, month):
         # Implement generating a line plot for the specified year and month
-        pass
+        per = PlotOperations()
+        df=self.db_operations.fetch_data()
+        df['sample_date'] = pd.to_datetime(df['sample_date'])
+        dt = pd.DataFrame()
+        dt['year'] = df['sample_date'].dt.year
+        dt['month'] = df['sample_date'].dt.month
+        dt['val'] = df['avg_temp']
+
+        filtered_values = dt.loc[(dt['year'] == month) & (dt['month'] == month), 'val'].tolist()
+        
+        per.create_lineplot(filtered_values, year, month)
 
     def run(self):
         while True:
@@ -84,3 +116,5 @@ class WeatherProcessor:
 if __name__ == "__main__":
     weather_processor = WeatherProcessor()
     weather_processor.run()
+
+
