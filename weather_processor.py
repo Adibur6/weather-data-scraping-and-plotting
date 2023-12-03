@@ -45,17 +45,19 @@ class WeatherProcessor:
 
 
     def generate_box_plot(self, from_year, to_year):
-        per = PlotOperations()
         df=self.db_operations.fetch_data()
+        
+        per = PlotOperations()
 
         df['sample_date'] = pd.to_datetime(df['sample_date'])
-
         dt = pd.DataFrame()
         dt['year'] = df['sample_date'].dt.year
         dt['month'] = df['sample_date'].dt.month
         dt['val'] = df['avg_temp']
+        # print(dt.head())
+        
 
-        bdf = pd.DataFrame(columns=['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'])
+        bdf = pd.DataFrame(columns=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
         for i in range(to_year, from_year-1, -1):
             for j in range(1,13):
                 filtered_values = dt.loc[(dt['year'] == i) & (dt['month'] == j), 'val'].tolist()
@@ -63,7 +65,12 @@ class WeatherProcessor:
                     mean_val = round(sum(filtered_values) / len(filtered_values), 1)
                 else:
                     mean_val=0
-                bdf.at[i, j]=mean_val
+                bdf.loc[i, j] = mean_val
+
+        bdf = bdf.apply(pd.to_numeric)
+        bdf = bdf.sort_index()
+        # print(bdf.head())
+
 
         per.create_boxplot(bdf, from_year, to_year)
 
@@ -79,14 +86,14 @@ class WeatherProcessor:
         dt['month'] = df['sample_date'].dt.month
         dt['val'] = df['avg_temp']
 
-        filtered_values = dt.loc[(dt['year'] == month) & (dt['month'] == month), 'val'].tolist()
+        filtered_values = dt.loc[(dt['year'] == year) & (dt['month'] == month), 'val'].tolist()
         
         per.create_lineplot(filtered_values, year, month)
 
     def run(self):
         while True:
             self.display_menu()
-            choice = input("Enter your choice (1-4): ")
+            choice = input("Enter your choice (1-5): ")
 
             if choice == "1":
                 self.download_update_weather_data()
